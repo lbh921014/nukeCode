@@ -8,13 +8,16 @@ import datetime
 from playwright.sync_api import sync_playwright
 
 '''注意，这里的import api是另一个py文件，下文会提及'''
-# import nukeCode
-
 app = Flask(__name__)
 
+groupTime = 0
+priviteTime = 0
 '''监听端口，获取QQ信息'''
 
+
 @app.route('/post_data', methods=['POST'])
+
+
 def post_data():
     '下面的request.get_json().get......是用来获取关键字的值用的，关键字参考上面代码段的数据格式'
     if request.get_json().get('message_type') == 'private':  # 如果是私聊信息
@@ -23,9 +26,14 @@ def post_data():
         print(message)
         # api.keyword(message, uid)  # 将 Q号和原始信息传到我们的后台
         if uid == 254923340 and message == '核弹密码':
-            print('触发条件')
-            # nukeCode.sendCode()
-            sendCode()
+            sec = int(time.time())
+            global priviteTime
+            if (sec - priviteTime) > 15:
+                print('触发条件')
+                priviteTime = sec
+                sendCode()
+            else:
+                print('时间间隔较短')
 
     if request.get_json().get('message_type') == 'group':  # 如果是群聊信息
         gid = request.get_json().get('group_id')  # 获取群号
@@ -34,8 +42,14 @@ def post_data():
         # api.keyword(message, uid, gid)  # 将 Q号和原始信息传到我们的后台
         print(message)
         if gid == 256615371 and message == '核弹密码':
-            print('触发条件')
-            sendCodeGroup()
+            sec = int(time.time())
+            global groupTime
+            if (sec - groupTime) > 15:
+                print('触发条件')
+                groupTime = sec
+                sendCodeGroup()
+            else:
+                print('时间间隔较短')
     return "OK"
 
 def sendCode():
